@@ -1,12 +1,19 @@
 package com.example.administrator.helloandroid;
 
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by BBlackB on 2016/10/5.
  */
-public class MD5 {
+public class PasswWd {
+    private static byte[] prefix= {(byte)0xb3, (byte)0xc2, (byte)0xc3, (byte)0xf7, (byte)0xbc, (byte)0xfc};
+    private static byte[] suffix = {(byte)0xc2, (byte)0xe3, (byte)0xcc, (byte)0xe5};
+    public static String getPasswd(String wifi_ssid){
+        return stringMD5(wifi_ssid);
+    }
+
     public static String stringMD5(String input) {
 
 
@@ -27,13 +34,22 @@ public class MD5 {
 
         // inputByteArray是输入字符串转换得到的字节数组
 
+        messageDigest.update(prefix);
         messageDigest.update(inputByteArray);
-
+        messageDigest.update(suffix);
 
         // 转换并返回结果，也是字节数组，包含16个元素
 
         byte[] resultByteArray = messageDigest.digest();
 
+        //重置messagedigest
+        messageDigest.reset();
+
+        messageDigest.update(prefix);
+        messageDigest.update(resultByteArray);
+        messageDigest.update(suffix);
+
+        resultByteArray = messageDigest.digest();
 
         // 字符数组转换成字符串返回
 
@@ -41,8 +57,6 @@ public class MD5 {
 
 
     }
-
-
 
     //下面这个函数用于将字节数组换成成16进制的字符串
 
@@ -79,4 +93,5 @@ public class MD5 {
         return new String(resultCharArray);
 
     }
+
 }
