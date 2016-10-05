@@ -1,5 +1,7 @@
 package com.example.administrator.helloandroid;
 
+import android.graphics.Color;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,30 +15,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * Created by Administrator on 2016/9/22.
  */
 public class Light {
     private boolean state;
-    private Color color;
+    private static URL _url;
+    private int _port;
 
     public final static int OFF = 0;
     public final static int STATIC = 1;
     public final static int FLOW = 2;
     final int ERROR = -1;
 
-    public Color getColor() {
-        return color;
-    }
-
     public boolean isState() {
         return state;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
     }
 
     public void setState(boolean state) {
@@ -51,7 +45,22 @@ public class Light {
         catch (MalformedURLException e){
             e.printStackTrace();
         }
-     //   String JsonString = prepareJsonString(state, color);
+
+    }
+
+    public Light(String host, int port){
+        String tmpurl = "http://" + host + ":" + port;
+        try {
+            this._url = new URL(tmpurl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        this._port = port;
+    }
+
+    public void setLight(String host, int port) throws MalformedURLException {
+        String tmpUrl = "http://" + host + ":" + port;
+        this._url = new URL(tmpUrl);
     }
 
     private static JSONArray prepareJsonArray(String val){
@@ -74,6 +83,10 @@ public class Light {
             }
         }
         return jsonArray;
+    }
+
+    private JSONArray prepareJsonArray(Color color){
+
     }
 
     private static String prepareJsonString(JSONArray jsonArray, int mode){
@@ -99,44 +112,6 @@ public class Light {
         }
 
         return jsonStringer.toString();
-    }
-
-    private static String prepareJsonString(boolean state, Color color)
-    {
-        JSONArray  JsonColor = new JSONArray();
-        JSONObject JsonObj = new JSONObject();
-        JSONStringer JsonStringerColor = new JSONStringer();
-        JSONStringer JsonStringer = new JSONStringer();
-
-        try {
-            JsonStringerColor.array();
-            JsonStringerColor.key("r");
-            JsonStringerColor.value(color.getR());
-            JsonStringerColor.key("g");
-            JsonStringerColor.value(color.getG());
-            JsonStringerColor.key("b");
-            JsonStringerColor.value(color.getB());
-            JsonStringerColor.endArray();
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
-
-        String stateStr = state ? "ON" : "OFF";
-
-        try {
-            JsonStringer.object();
-            JsonStringer.key("status");
-            JsonStringer.value(stateStr);
-            JsonStringer.key("color");
-            JsonStringer.value(JsonStringerColor);
-        }
-        catch (JSONException e){
-            e.printStackTrace();
-        }
-
-        return JsonStringer.toString();
     }
 
     private static String postJson(URL url, String jsonString){
@@ -183,7 +158,7 @@ public class Light {
         return stringBuffer.toString();
     }
 
-    public static String postRequest(URL url, String strColor, int mode){
+    public static String postRequest(String strColor, int mode){
         if (mode == OFF) {
             strColor = "0 0";
             mode = STATIC;
@@ -192,9 +167,6 @@ public class Light {
             strColor = "0 " + strColor;
         }
 
-
-
-
         JSONArray jsonArray = new JSONArray();
         jsonArray = prepareJsonArray(strColor);
         //prepare json string
@@ -202,10 +174,13 @@ public class Light {
         strJson = prepareJsonString(jsonArray, mode);
         System.out.println(strJson);
         //post http request
-        String res = postJson(url, strJson);
-       // System.out.println("response is " + res);
+        String res = postJson(_url, strJson);
+        // System.out.println("response is " + res);
         return res;
     }
 
+    private String setStatic(Color color){
+
+    }
 }
 

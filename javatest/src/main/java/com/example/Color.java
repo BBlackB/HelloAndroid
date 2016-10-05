@@ -1,4 +1,4 @@
-package com.example.administrator.helloandroid;
+package com.example;
 
 
 /**
