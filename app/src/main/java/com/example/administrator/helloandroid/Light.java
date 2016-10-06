@@ -15,12 +15,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by Administrator on 2016/9/22.
  */
 public class Light {
-    private boolean state;
     private static URL _url;
     private int _port;
 
@@ -29,13 +31,6 @@ public class Light {
     public final static int FLOW = 2;
     final int ERROR = -1;
 
-    public boolean isState() {
-        return state;
-    }
-
-    public void setState(boolean state) {
-        this.state = state;
-    }
 
     public void setLight()
     {
@@ -61,6 +56,7 @@ public class Light {
     public void setLight(String host, int port) throws MalformedURLException {
         String tmpUrl = "http://" + host + ":" + port;
         this._url = new URL(tmpUrl);
+        _port = port;
     }
 
     private static JSONArray prepareJsonArray(String val){
@@ -85,8 +81,13 @@ public class Light {
         return jsonArray;
     }
 
-    private JSONArray prepareJsonArray(Color color){
-
+    private JSONArray prepareJsonArray(int[] color) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(0,0);
+        for (int i = 0; i < color.length; i++){
+                jsonArray.put(i+1, color[i]);
+        }
+        return jsonArray;
     }
 
     private static String prepareJsonString(JSONArray jsonArray, int mode){
@@ -179,8 +180,30 @@ public class Light {
         return res;
     }
 
-    private String setStatic(Color color){
+    private String setStatic(int[] color) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+        jsonArray = prepareJsonArray(color);
+        //prepare json string
+        String strJson = null;
+        strJson = prepareJsonString(jsonArray, STATIC);
+        System.out.println(strJson);
+        //post http request
+        String res = postJson(_url, strJson);
+        // System.out.println("response is " + res);
+        return res;
+    }
 
+    private String setFlow(int[] color) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+        jsonArray = prepareJsonArray(color);
+        //prepare json string
+        String strJson = null;
+        strJson = prepareJsonString(jsonArray, FLOW);
+        System.out.println(strJson);
+        //post http request
+        String res = postJson(_url, strJson);
+        // System.out.println("response is " + res);
+        return res;
     }
 }
 
