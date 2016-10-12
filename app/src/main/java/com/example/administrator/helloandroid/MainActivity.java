@@ -1,5 +1,6 @@
 package com.example.administrator.helloandroid;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_wifi_list);
 
         if (Build.VERSION.SDK_INT >= 11) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         initSpinner();
 
+        //setContentView();
+
         Button.OnClickListener listener = new Button.OnClickListener(){
             public void onClick(View view){
 
@@ -53,9 +56,10 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                String res = Light.postRequest(_url, _textColor, _mode);
+                //Light light = new Light("192.168.2.223",23333);
+               // String res = Light.postRequest(_url, _textColor, _mode);
                 //Toast.makeText(MainActivity.this, "color: " + _textColor, Toast.LENGTH_SHORT).show();
-                Toast.makeText(MainActivity.this, res, Toast.LENGTH_SHORT).show();
+               // Toast.makeText(MainActivity.this, res, Toast.LENGTH_SHORT).show();
             }
         };
         button.setOnClickListener(listener);
