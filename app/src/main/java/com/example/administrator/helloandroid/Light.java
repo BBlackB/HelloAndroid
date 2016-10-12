@@ -180,7 +180,7 @@ public class Light {
         return res;
     }
 
-    private String setStatic(int[] color) throws JSONException {
+    public String setStatic(int[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         jsonArray = prepareJsonArray(color);
         //prepare json string
@@ -193,7 +193,7 @@ public class Light {
         return res;
     }
 
-    private String setFlow(int[] color) throws JSONException {
+    public String setFlow(int[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         jsonArray = prepareJsonArray(color);
         //prepare json string
