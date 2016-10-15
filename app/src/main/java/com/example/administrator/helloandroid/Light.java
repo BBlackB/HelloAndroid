@@ -25,6 +25,10 @@ import java.util.ListIterator;
 public class Light {
     private static URL _url;
     private int _port;
+    private boolean WIFIMode;
+
+    public final boolean AP = true;
+    public final boolean STA = false;
 
     public final static int OFF = 0;
     public final static int STATIC = 1;
@@ -51,12 +55,32 @@ public class Light {
             e.printStackTrace();
         }
         this._port = port;
+        this.WIFIMode = AP;
+    }
+
+    public Light(String host, int port, boolean wifimode){
+        String tmpurl = "http://" + host + ":" + port;
+        try {
+            this._url = new URL(tmpurl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        this._port = port;
+        this.WIFIMode = wifimode;
     }
 
     public void setLight(String host, int port) throws MalformedURLException {
         String tmpUrl = "http://" + host + ":" + port;
         this._url = new URL(tmpUrl);
         _port = port;
+    }
+
+    public void setWIFIMode(boolean wifiMode){
+        this.WIFIMode = wifiMode;
+    }
+
+    public boolean getWIFIMode(){
+        return this.WIFIMode;
     }
 
     private static JSONArray prepareJsonArray(String val){
@@ -115,6 +139,7 @@ public class Light {
         return jsonStringer.toString();
     }
 
+    //发送json字符串
     private static String postJson(URL url, String jsonString){
         InputStream inputStream = null;
         HttpURLConnection urlConnection = null;
