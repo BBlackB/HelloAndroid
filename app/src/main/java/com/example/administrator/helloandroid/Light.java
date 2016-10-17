@@ -23,7 +23,7 @@ import java.util.ListIterator;
  * Created by Administrator on 2016/9/22.
  */
 public class Light {
-    private static URL _url;
+    private URL _url;
     private int _port;
     private boolean WIFIMode;
 
@@ -83,7 +83,7 @@ public class Light {
         return this.WIFIMode;
     }
 
-    private static JSONArray prepareJsonArray(String val){
+    private JSONArray prepareJsonArray(String val){
         String[] strArr = null;
         strArr  = val.split(" ");
         JSONArray jsonArray = new JSONArray();
@@ -114,7 +114,7 @@ public class Light {
         return jsonArray;
     }
 
-    private static String prepareJsonString(JSONArray jsonArray, int mode){
+    private String prepareJsonString(JSONArray jsonArray, int mode){
         JSONStringer jsonStringer = new JSONStringer();
         String strMode;
         switch (mode)
@@ -138,9 +138,8 @@ public class Light {
 
         return jsonStringer.toString();
     }
-
     //发送json字符串
-    private static String postJson(URL url, String jsonString){
+    private String postJson(URL url, String jsonString){
         InputStream inputStream = null;
         HttpURLConnection urlConnection = null;
         try {
@@ -169,7 +168,7 @@ public class Light {
         return null;
     }
 
-    private static  String inputStream2String(InputStream is){
+    private  String inputStream2String(InputStream is){
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         StringBuffer stringBuffer = new StringBuffer();
         String line = "";
@@ -184,7 +183,7 @@ public class Light {
         return stringBuffer.toString();
     }
 
-    public static String postRequest(String strColor, int mode){
+    public String postRequest(String strColor, int mode){
         if (mode == OFF) {
             strColor = "0 0";
             mode = STATIC;
@@ -230,5 +229,73 @@ public class Light {
         // System.out.println("response is " + res);
         return res;
     }
+
+    public void changeWIFIModeToAP(){
+        String tmp = _url.toString() + "/setting";
+        URL sendurl = null;
+        try {
+            sendurl = new URL(tmp);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        JSONStringer jsonStringer = new JSONStringer();
+        try {
+            jsonStringer.object();
+            jsonStringer.key("mode");
+            jsonStringer.value("ap");
+            jsonStringer.endObject();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("change to AP mode: " + jsonStringer.toString());
+
+        postJson(sendurl, jsonStringer.toString());
+    }
+
+    public void changeWIFIModeToSTA(String ssid, String passwd){
+        String tmp = _url.toString() + "/setting";
+        URL url = null;
+        try {
+            url = new URL(tmp);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        JSONStringer jsonStringer = new JSONStringer();
+        try {
+            jsonStringer.object();
+            jsonStringer.key("mode");
+            jsonStringer.key("sta");
+            jsonStringer.key("wifi_ssid");
+            jsonStringer.value(ssid);
+            jsonStringer.key("wifi_passwd");
+            jsonStringer.value(passwd);
+            jsonStringer.endObject();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("change to STA send: " + jsonStringer.toString());
+
+        postJson(url, jsonStringer.toString());
+    }
+
+    public void updateURL(URL url){
+        this._url = url;
+    }
+
+    public void updateURL(String host){
+        String tmpurl = "http://" + host + ":" + _port;
+        URL  newurl = null;
+        try {
+            newurl = new URL(tmpurl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        this._url = newurl;
+    }
+
 }
 
