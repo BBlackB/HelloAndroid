@@ -33,6 +33,7 @@ public class Light {
     public final static int OFF = 0;
     public final static int STATIC = 1;
     public final static int FLOW = 2;
+    public final static int DEFAULT_INTERVAL = 1000;
     final int ERROR = -1;
 
 
@@ -105,11 +106,11 @@ public class Light {
         return jsonArray;
     }
 
-    private JSONArray prepareJsonArray(int[] color) throws JSONException {
+    private JSONArray prepareJsonArray(int mSec, int[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(0,0);
+        jsonArray.put(0,mSec);
         for (int i = 0; i < color.length; i++){
-                jsonArray.put(i+1, color[i]);
+            jsonArray.put(i+1, color[i]);
         }
         return jsonArray;
     }
@@ -206,7 +207,7 @@ public class Light {
 
     public String setStatic(int[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
-        jsonArray = prepareJsonArray(color);
+        jsonArray = prepareJsonArray(DEFAULT_INTERVAL,color);
         //prepare json string
         String strJson = null;
         strJson = prepareJsonString(jsonArray, STATIC);
@@ -218,8 +219,12 @@ public class Light {
     }
 
     public String setFlow(int[] color) throws JSONException {
+        return setFlow(DEFAULT_INTERVAL, color);
+    }
+
+    public String setFlow(int mSec, int[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
-        jsonArray = prepareJsonArray(color);
+        jsonArray = prepareJsonArray(mSec, color);
         //prepare json string
         String strJson = null;
         strJson = prepareJsonString(jsonArray, FLOW);
