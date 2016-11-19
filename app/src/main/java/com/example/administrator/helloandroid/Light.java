@@ -213,7 +213,12 @@ public class Light {
         strJson = prepareJsonString(jsonArray, STATIC);
         System.out.println(strJson);
         //post http request
-        String res = postJson(_url, strJson);
+        String res = null;
+        try {
+            res = postJson(urlAddMode(_url), strJson);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         // System.out.println("response is " + res);
         return res;
     }
@@ -230,7 +235,12 @@ public class Light {
         strJson = prepareJsonString(jsonArray, FLOW);
         System.out.println(strJson);
         //post http request
-        String res = postJson(_url, strJson);
+        String res = null;
+        try {
+            res = postJson(urlAddMode(_url), strJson);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         // System.out.println("response is " + res);
         return res;
     }
@@ -302,5 +312,10 @@ public class Light {
         this._url = newurl;
     }
 
+    private URL urlAddMode(URL url) throws MalformedURLException {
+        String str = url.toString() + "/mode";
+        URL tmpURL = new URL(str);
+        return tmpURL;
+    }
 }
 
