@@ -37,6 +37,8 @@ public class Light {
     public final static int DEFAULT_INTERVAL = 1000;
     final int ERROR = -1;
 
+    final String TAG = "TAG";
+
 
     public void setLight()
     {
@@ -224,9 +226,7 @@ public class Light {
     * color:设置的颜色
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    private String setMode(int mode, int[] color) throws JSONException {
-        return setMode(mode, DEFAULT_INTERVAL, color);
-    }
+    private String setMode(int mode, int[] color) throws JSONException {return setMode(mode, DEFAULT_INTERVAL, color);}
 
     /*
     * setMode
@@ -245,7 +245,7 @@ public class Light {
             strJson = prepareJsonString(jsonArray, FLOW);
         else
             return null;
-        System.out.println(strJson);
+        Log.i(TAG, "setMode: " + strJson);
         //post http request
         String res = null;
         try {
@@ -419,7 +419,7 @@ public class Light {
             strJson = prepareTimerJsonString(jsonArray, FLOW, timer);
         else
             return null;
-        System.out.println(strJson);
+        Log.i(TAG, "setTimerMode: " + strJson);
         //post http request
         String res = null;
         try {

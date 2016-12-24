@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -41,7 +43,26 @@ public class MainActivity extends AppCompatActivity {
         final EditText editText = (EditText) findViewById(R.id.editText);
         final EditText editText1 = (EditText) findViewById(R.id.editText2);
 
-        initSpinner();
+        Light light = new Light("192.168.4.1", 23333);
+        try {
+            light.setStatic(new int[]{100});
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            light.setFlow(2000, new int[]{2000, 10000, 30000});
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            light.setTimer(1, new int[]{200}, 3000);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+//        initSpinner();
 
         //setContentView();
 
