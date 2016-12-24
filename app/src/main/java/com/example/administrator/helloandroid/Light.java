@@ -1,6 +1,7 @@
 package com.example.administrator.helloandroid;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,6 +116,12 @@ public class Light {
         return jsonArray;
     }
 
+    /*
+    * prepareJsonString for Timer
+    * jsonArray:颜色RGB数组
+    * mode:选择模式
+    * return:返回发送的json字符串
+    * */
     private String prepareJsonString(JSONArray jsonArray, int mode){
         JSONStringer jsonStringer = new JSONStringer();
         String strMode;
@@ -139,15 +146,21 @@ public class Light {
 
         return jsonStringer.toString();
     }
-    //发送json字符串
+
+    /*
+    * postJson
+    * url:发送地址
+    * jsonString:发送的json字符串
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
     private String postJson(URL url, String jsonString){
         InputStream inputStream = null;
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestProperty("Content-type", "application/json;charset=UTF-8");
-            urlConnection.setRequestProperty("Accept","application/json");
-            urlConnection.setRequestProperty("charset","utf-8");
+            urlConnection.setRequestProperty("Content-type", "application/json;charset=UTF-8");
+//            urlConnection.setRequestProperty("Accept","application/json");
+//            urlConnection.setRequestProperty("charset","utf-8");
 
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
@@ -205,12 +218,33 @@ public class Light {
         return res;
     }
 
-    public String setStatic(int[] color) throws JSONException {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray = prepareJsonArray(DEFAULT_INTERVAL,color);
-        //prepare json string
-        String strJson = null;
-        strJson = prepareJsonString(jsonArray, STATIC);
+    /*
+    * setMode
+    * mode:选择模式
+    * color:设置的颜色
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    private String setMode(int mode, int[] color) throws JSONException {
+        return setMode(mode, DEFAULT_INTERVAL, color);
+    }
+
+    /*
+    * setMode
+    * mode:选择模式
+    * color:设置的颜色
+    * mSec:流光间隔
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    private String setMode(int mode, int mSec, int[] color) throws JSONException {
+        JSONArray jsonArray;
+        String strJson;
+        jsonArray = prepareJsonArray(mSec,color);
+        if (mode == STATIC)
+            strJson = prepareJsonString(jsonArray, STATIC);
+        else if (mode == FLOW)
+            strJson = prepareJsonString(jsonArray, FLOW);
+        else
+            return null;
         System.out.println(strJson);
         //post http request
         String res = null;
@@ -223,27 +257,27 @@ public class Light {
         return res;
     }
 
-    public String setFlow(int[] color) throws JSONException {
-        return setFlow(DEFAULT_INTERVAL, color);
-    }
+    /*
+    * setStatic
+    * color:设置的颜色
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    public String setStatic(int[] color) throws JSONException { return setMode(STATIC, color);}
 
-    public String setFlow(int mSec, int[] color) throws JSONException {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray = prepareJsonArray(mSec, color);
-        //prepare json string
-        String strJson = null;
-        strJson = prepareJsonString(jsonArray, FLOW);
-        System.out.println(strJson);
-        //post http request
-        String res = null;
-        try {
-            res = postJson(urlAddMode(_url), strJson);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        // System.out.println("response is " + res);
-        return res;
-    }
+    /*
+    * setFlow
+    * color:设置的颜色
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    public String setFlow(int[] color) throws JSONException { return setMode(FLOW, color);}
+
+    /*
+    * setFlow
+    * color:设置的颜色
+    * mSec:设置时间间隔
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    public String setFlow(int mSec, int[] color) throws JSONException {return setMode(FLOW, mSec, color);}
 
     public void changeWIFIModeToAP(){
         String tmp = _url.toString() + "/setting";
@@ -317,5 +351,95 @@ public class Light {
         URL tmpURL = new URL(str);
         return tmpURL;
     }
+
+    /*
+    * 设置定时开灯
+    * mode:选择模式（static or flow）
+    * color:根据不同模式选择颜色
+    * timer:设置开灯定时器
+    * */
+    public void setTimer(int mode, int[] color, int timer) throws JSONException {
+        switch (mode){
+            case STATIC: setTimerMode(STATIC, color, timer); break;
+            case FLOW: setTimerMode(FLOW, color, timer); break;
+            default:
+                Log.i("Error", "setTimer: " + "wrong mode!");
+                return;
+        }
+    }
+
+    /*
+    * prepareJsonString for Timer
+    * jsonArray:颜色RGB数组
+    * mode:选择模式
+    * timer:设置定时器
+    * return:返回发送的json字符串
+    * */
+    private String prepareTimerJsonString(JSONArray jsonArray, int mode, int timer){
+        JSONStringer jsonStringer = new JSONStringer();
+        String strMode;
+        switch (mode)
+        {
+            case STATIC: strMode = "static"; break;
+            case FLOW: strMode = "flow"; break;
+            default: strMode = "error";
+        }
+
+        try {
+            jsonStringer.object();
+            jsonStringer.key("params");
+            jsonStringer.value(jsonArray);
+            jsonStringer.key("mode");
+            jsonStringer.value(strMode);
+            jsonStringer.key("after");
+            jsonStringer.value(timer);
+            jsonStringer.endObject();
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return jsonStringer.toString();
+    }
+
+    /*
+    * setMode
+    * mode:选择模式
+    * color:设置的颜色
+    * mSec:流光间隔
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    private String setTimerMode(int mode, int mSec, int[] color, int timer) throws JSONException {
+        JSONArray jsonArray;
+        String strJson;
+        jsonArray = prepareJsonArray(mSec,color);
+        if (mode == STATIC)
+            strJson = prepareTimerJsonString(jsonArray, STATIC, timer);
+        else if (mode == FLOW)
+            strJson = prepareTimerJsonString(jsonArray, FLOW, timer);
+        else
+            return null;
+        System.out.println(strJson);
+        //post http request
+        String res = null;
+        try {
+            res = postJson(urlAddMode(_url), strJson);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        // System.out.println("response is " + res);
+        return res;
+    }
+
+    /*
+    * setMode
+    * mode:选择模式
+    * color:设置的颜色
+    * mSec:默认值（1000）
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    private String setTimerMode(int mode, int[] color, int timer) throws JSONException {return setTimerMode(mode, DEFAULT_INTERVAL, color, timer);}
+
+
 }
 
