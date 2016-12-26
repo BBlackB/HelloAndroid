@@ -34,7 +34,8 @@ public class Light {
     public final static int OFF = 0;
     public final static int STATIC = 1;
     public final static int FLOW = 2;
-    public final static int DEFAULT_INTERVAL = 1000;
+    public final static int FLOW_DEFAULT_INTERVAL = 1000;
+    public final static int STATIC_DEFAULT_INTERVAL = 0;
     final int ERROR = -1;
 
     final String TAG = "TAG";
@@ -109,7 +110,7 @@ public class Light {
         return jsonArray;
     }
 
-    private JSONArray prepareJsonArray(int mSec, int[] color) throws JSONException {
+    private JSONArray prepareJsonArray(int mSec, long[] color) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(0,mSec);
         for (int i = 0; i < color.length; i++){
@@ -158,6 +159,7 @@ public class Light {
     private String postJson(URL url, String jsonString){
         InputStream inputStream = null;
         HttpURLConnection urlConnection = null;
+        Log.i(TAG, "postJson: " + url.toString());
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Content-type", "application/json;charset=UTF-8");
@@ -199,7 +201,7 @@ public class Light {
         return stringBuffer.toString();
     }
 
-    public String postRequest(String strColor, int mode){
+    private String postRequest(String strColor, int mode){
         if (mode == OFF) {
             strColor = "0 0";
             mode = STATIC;
@@ -220,13 +222,6 @@ public class Light {
         return res;
     }
 
-    /*
-    * setMode
-    * mode:选择模式
-    * color:设置的颜色
-    * return:若发送成功，返回接受到的消息；否则，返回NULL
-    * */
-    private String setMode(int mode, int[] color) throws JSONException {return setMode(mode, DEFAULT_INTERVAL, color);}
 
     /*
     * setMode
@@ -235,7 +230,7 @@ public class Light {
     * mSec:流光间隔
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    private String setMode(int mode, int mSec, int[] color) throws JSONException {
+    private String setMode(int mode, int mSec, long[] color) throws JSONException {
         JSONArray jsonArray;
         String strJson;
         jsonArray = prepareJsonArray(mSec,color);
@@ -253,23 +248,30 @@ public class Light {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        // System.out.println("response is " + res);
         return res;
     }
 
     /*
     * setStatic
     * color:设置的颜色
+    * mSec:设置间隔时间（默认0）
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    public String setStatic(int[] color) throws JSONException { return setMode(STATIC, color);}
+    public String setStatic(int mSec, long[] color) throws JSONException { return setMode(STATIC, mSec, color);}
+
+    /*
+    * setStatic
+    * color:设置的颜色
+    * return:若发送成功，返回接受到的消息；否则，返回NULL
+    * */
+    public String setStatic(long[] color) throws JSONException { return setMode(STATIC, STATIC_DEFAULT_INTERVAL, color);}
 
     /*
     * setFlow
     * color:设置的颜色
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    public String setFlow(int[] color) throws JSONException { return setMode(FLOW, color);}
+    public String setFlow(long[] color) throws JSONException { return setMode(FLOW, FLOW_DEFAULT_INTERVAL, color);}
 
     /*
     * setFlow
@@ -277,7 +279,7 @@ public class Light {
     * mSec:设置时间间隔
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    public String setFlow(int mSec, int[] color) throws JSONException {return setMode(FLOW, mSec, color);}
+    public String setFlow(int mSec, long[] color) throws JSONException {return setMode(FLOW, mSec, color);}
 
     public void changeWIFIModeToAP(){
         String tmp = _url.toString() + "/setting";
@@ -316,7 +318,7 @@ public class Light {
         try {
             jsonStringer.object();
             jsonStringer.key("mode");
-            jsonStringer.key("sta");
+            jsonStringer.value("sta");
             jsonStringer.key("wifi_ssid");
             jsonStringer.value(ssid);
             jsonStringer.key("wifi_passwd");
@@ -358,7 +360,7 @@ public class Light {
     * color:根据不同模式选择颜色
     * timer:设置开灯定时器
     * */
-    public void setTimer(int mode, int[] color, int timer) throws JSONException {
+    public void setTimer(int mode, long[] color, int timer) throws JSONException {
         switch (mode){
             case STATIC: setTimerMode(STATIC, color, timer); break;
             case FLOW: setTimerMode(FLOW, color, timer); break;
@@ -409,7 +411,7 @@ public class Light {
     * mSec:流光间隔
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    private String setTimerMode(int mode, int mSec, int[] color, int timer) throws JSONException {
+    private String setTimerMode(int mode, int mSec,  long[] color, int timer) throws JSONException {
         JSONArray jsonArray;
         String strJson;
         jsonArray = prepareJsonArray(mSec,color);
@@ -433,12 +435,11 @@ public class Light {
 
     /*
     * setMode
-    * mode:选择模式
     * color:设置的颜色
     * mSec:默认值（1000）
     * return:若发送成功，返回接受到的消息；否则，返回NULL
     * */
-    private String setTimerMode(int mode, int[] color, int timer) throws JSONException {return setTimerMode(mode, DEFAULT_INTERVAL, color, timer);}
+    private String setTimerMode(int mSec, long[] color, int timer) throws JSONException {return setTimerMode(STATIC, mSec, color, timer);}
 
 
 }

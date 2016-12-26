@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -39,48 +40,54 @@ public class MainActivity extends AppCompatActivity {
         }
 
         spinner = (Spinner) findViewById(R.id.spinner);
-        button = (Button) findViewById(R.id.button);
+        button = (Button) findViewById(R.id.send);
         final EditText editText = (EditText) findViewById(R.id.editText);
         final EditText editText1 = (EditText) findViewById(R.id.editText2);
-
-        Light light = new Light("192.168.4.1", 23333);
-        try {
-            light.setStatic(new int[]{100});
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            light.setFlow(2000, new int[]{2000, 10000, 30000});
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            light.setTimer(1, new int[]{200}, 3000);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
 //        initSpinner();
 
         //setContentView();
-
+        final Light light = new Light("192.168.4.1", 23333);
         Button.OnClickListener listener = new Button.OnClickListener(){
             public void onClick(View view){
 
-                _textColor = editText.getText().toString();
-                _textURL = editText1.getText().toString();
-                try {
-                    _url = new URL(_textURL);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                Thread thread1 = new Thread(new Runnable() {
 
-                //Light light = new Light("192.168.2.223",23333);
-               // String res = Light.postRequest(_url, _textColor, _mode);
-                //Toast.makeText(MainActivity.this, "color: " + _textColor, Toast.LENGTH_SHORT).show();
-               // Toast.makeText(MainActivity.this, res, Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void run() {
+
+                        try {
+                            light.setStatic(new long[]{0x100});
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread1.start();
+
+                Thread thread2 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            light.setFlow(2000, new long[]{2000, 0x10000, 0xf30000});
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+                thread2.start();
+
+                Thread thread3 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            light.setTimer(1, new long[]{200}, 3000);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread3.start();
             }
         };
         button.setOnClickListener(listener);
